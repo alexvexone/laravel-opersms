@@ -6,7 +6,7 @@
 2. В `.env` необходимо настроить директивы для подключения к OperSMS:
 
 `OPERSMS_LOGIN=YOUR_LOGIN`\
-`OPERSMS_PASSWORD=YOUR_PASSWORD`\
+`OPERSMS_PASSWORD=YOUR_PASSWORD`
 
 По умолчанию запросы отправляются на `http://83.69.139.182:8080`, если необходимо изменить URL, переопределите директиву:
 
