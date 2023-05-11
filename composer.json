@@ -11,6 +11,7 @@
   ],
   "require": {
       "php": ">=8.1",
+      "ext-curl": "*",
       "laravel/framework": "^9.0|^10.0"
   },
   "autoload": {
