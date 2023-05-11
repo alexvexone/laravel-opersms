@@ -1,0 +1,27 @@
+{
+  "name": "alexvexone/laravel-opersms",
+  "description": "Сервис для интеграции с OperSMS",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Aleksandr Veksler",
+      "email": "alexvexone@gmail.com",
+      "homepage": "https://github.com/alexvexone"
+    }
+  ],
+  "require": {
+      "php": "^8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alexvexone\\LaravelOperSms\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Alexvexone\\LaravelOperSms\\Providers\\OperSmsServiceProvider"
+      ]
+    }
+  }
+}
