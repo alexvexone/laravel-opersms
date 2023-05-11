@@ -30,6 +30,10 @@ class OperSmsServiceProvider extends ServiceProvider
                 return $app->make('opersms');
             });
         });
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/opersms.php', 'opersms'
+        );
     }
 
     /**
