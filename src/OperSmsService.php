@@ -16,36 +16,67 @@ class OperSmsService
      * Отправить СМС.
      *
      * @param  array|string  $phone
-     * @param  string  $text
+     * @param  array|string  $text
      *
-     * @return void
      * @throws Exception
      */
-    public static function send(array|string $phone, string $text): void
+    public static function send(array|string $phone, array|string $text): void
     {
-        $preparedText = self::prepareText($text);
+        if (is_null(config('opersms.login')) || is_null(config('opersms.password'))) {
+            throw new Exception('Не указаны учетные данные от OperSMS.');
+        }
+
+        if (
+            is_array($phone) &&
+            is_array($text) &&
+            count($phone) !== count($text)
+        ) {
+            throw new Exception('Количество номеров должно совпадать с количеством сообщений.');
+        }
 
         if (is_array($phone)) {
             $array = [];
 
-            foreach ($phone as $value) {
-                $array[] = [
-                    'phone' => self::preparePhone($value),
-                    'text' => $preparedText,
+            if (is_array($text)) {
+                foreach ($phone as $key => $value) {
+                    $array[] = [
+                        'phone' => self::preparePhone($value),
+                        'text' => self::prepareText($text[$key]),
+                    ];
+                }
+            } else {
+                $preparedText = self::prepareText($text);
+
+                foreach ($phone as $value) {
+                    $array[] = [
+                        'phone' => self::preparePhone($value),
+                        'text' => $preparedText,
+                    ];
+                }
+            }
+        } else {
+            $preparedPhone = self::preparePhone($phone);
+
+            if (is_array($text)) {
+                $array = [];
+
+                foreach ($text as $value) {
+                    $array[] = [
+                        'phone' => $preparedPhone,
+                        'text' => self::prepareText($value),
+                    ];
+                }
+            } else {
+                $array = [
+                    [
+                        'phone' => $preparedPhone,
+                        'text' => self::prepareText($text),
+                    ],
                 ];
             }
-
-            $chunked = array_chunk($array, 50, true);
-        } else {
-            $chunked = [
-                [
-                    [
-                        'phone' => self::preparePhone($phone),
-                        'text' => $preparedText,
-                    ],
-                ],
-            ];
         }
+
+        $chunked = array_chunk($array, 50, true);
 
         foreach ($chunked as $chunk) {
             $ch = curl_init(config('opersms.url'));
@@ -94,9 +125,14 @@ class OperSmsService
      * @param  string  $text
      *
      * @return string
+     * @throws Exception
      */
     private static function prepareText(string $text): string
     {
-        return utf8_encode($text);
+        if (strlen($text) === 0) {
+            throw new Exception('Сообщение или одно из сообщений не может быть пустым.');
+        }
+
+        return $text;
     }
 }
