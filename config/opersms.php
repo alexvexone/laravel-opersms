@@ -14,4 +14,6 @@ return [
     'login' => env('OPERSMS_LOGIN'),
 
     'password' => env('OPERSMS_PASSWORD'),
+
+    'ssl_verification' => env('OPERSMS_SSL_VERIFICATION', false),
 ];
