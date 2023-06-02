@@ -39,10 +39,21 @@ class OperSmsService
 
             foreach ($phone as $subArray) {
                 if (!is_array($subArray)) {
-                    throw new Exception('');
+                    throw new Exception('Элемент должен быть массивом.');
                 }
 
-                
+                if (!isset($subArray['phone'])) {
+                    throw new Exception('Отсутствует телефонный номер.');
+                }
+
+                if (!isset($subArray['text'])) {
+                    throw new Exception('Отсутствует сообщение.');
+                }
+
+                $array[] = [
+                    'phone' => self::preparePhone($subArray['phone']),
+                    'text' => self::prepareText($subArray['text']),
+                ];
             }
         } else {
             if (is_array($phone)) {
@@ -125,7 +136,7 @@ class OperSmsService
         $phone = preg_replace('/\D/', '', trim($raw));
 
         if (!preg_match('/^998[0-9]{9}+$/', $phone)) {
-            throw new Exception('Номер телефона указан в неверном формате: ' . $phone);
+            throw new Exception('Номер телефона или один из номеров указан в неверном формате.');
         }
 
         return $phone;
