@@ -61,6 +61,12 @@ public function via(object $notifiable)
 \Alexvexone\LaravelOperSms\OperSmsService::send('YOUR_PHONE', ['YOUR_TEXT1', 'YOUR_TEXT2', ...]);
 ```
 
+Массовая отправка через собственный массив:
+
+```php
+\Alexvexone\LaravelOperSms\OperSmsService::send([['phone' => 'YOUR_PHONE1', 'text' => 'YOUR_TEXT1'], ...]);
+```
+
 ## Публикация конфигурации (опционально)
 
 ```bash
