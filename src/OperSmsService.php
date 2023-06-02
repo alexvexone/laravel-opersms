@@ -16,11 +16,11 @@ class OperSmsService
      * Отправить СМС.
      *
      * @param  array|string  $phone
-     * @param  array|string  $text
+     * @param  array|string|null  $text
      *
      * @throws Exception
      */
-    public static function send(array|string $phone, array|string $text): void
+    public static function send(array|string $phone, array|string $text = null): void
     {
         if (is_null(config('opersms.login')) || is_null(config('opersms.password'))) {
             throw new Exception('Не указаны учетные данные от OperSMS.');
@@ -34,45 +34,57 @@ class OperSmsService
             throw new Exception('Количество номеров должно совпадать с количеством сообщений.');
         }
 
-        if (is_array($phone)) {
+        if (is_array($phone) && is_null($text)) {
             $array = [];
 
-            if (is_array($text)) {
-                foreach ($phone as $key => $value) {
-                    $array[] = [
-                        'phone' => self::preparePhone($value),
-                        'text' => self::prepareText($text[$key]),
-                    ];
+            foreach ($phone as $subArray) {
+                if (!is_array($subArray)) {
+                    throw new Exception('');
                 }
-            } else {
-                $preparedText = self::prepareText($text);
 
-                foreach ($phone as $value) {
-                    $array[] = [
-                        'phone' => self::preparePhone($value),
-                        'text' => $preparedText,
-                    ];
-                }
+                
             }
         } else {
-            $preparedPhone = self::preparePhone($phone);
-
-            if (is_array($text)) {
+            if (is_array($phone)) {
                 $array = [];
 
-                foreach ($text as $value) {
-                    $array[] = [
-                        'phone' => $preparedPhone,
-                        'text' => self::prepareText($value),
-                    ];
+                if (is_array($text)) {
+                    foreach ($phone as $key => $value) {
+                        $array[] = [
+                            'phone' => self::preparePhone($value),
+                            'text' => self::prepareText($text[$key]),
+                        ];
+                    }
+                } else {
+                    $preparedText = self::prepareText($text);
+
+                    foreach ($phone as $value) {
+                        $array[] = [
+                            'phone' => self::preparePhone($value),
+                            'text' => $preparedText,
+                        ];
+                    }
                 }
             } else {
-                $array = [
-                    [
-                        'phone' => $preparedPhone,
-                        'text' => self::prepareText($text),
-                    ],
-                ];
+                $preparedPhone = self::preparePhone($phone);
+
+                if (is_array($text)) {
+                    $array = [];
+
+                    foreach ($text as $value) {
+                        $array[] = [
+                            'phone' => $preparedPhone,
+                            'text' => self::prepareText($value),
+                        ];
+                    }
+                } else {
+                    $array = [
+                        [
+                            'phone' => $preparedPhone,
+                            'text' => self::prepareText($text),
+                        ],
+                    ];
+                }
             }
         }
 
@@ -110,7 +122,7 @@ class OperSmsService
      */
     private static function preparePhone(string $raw): string
     {
-        $phone = str_replace(['+', '(', ')', ' ', '-'], '', $raw);
+        $phone = preg_replace('/\D/', '', trim($raw));
 
         if (!preg_match('/^998[0-9]{9}+$/', $phone)) {
             throw new Exception('Номер телефона указан в неверном формате: ' . $phone);
