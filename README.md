@@ -1,9 +1,14 @@
-# Сервис для интеграции с OperSMS
+# Сервис для интеграции с [OperSMS](https://opersms.uz/ru)
 
 ## Установка
 
-1. Выполните в консоли: `composer require alexvexone/laravel-opersms`
-2. В `.env` необходимо настроить директивы для подключения к OperSMS:
+```bash
+composer require alexvexone/laravel-opersms
+```
+
+Пакет использует Laravel Package Discovery, поэтому необязательно явно объявлять сервис-провайдер. 
+
+В `.env` необходимо настроить директивы для подключения к OperSMS:
 
 `OPERSMS_LOGIN=YOUR_LOGIN`\
 `OPERSMS_PASSWORD=YOUR_PASSWORD`
@@ -12,24 +17,52 @@
 
 `OPERSMS_URL=YOUR_URL`
 
+Если необходимо соединяться по SSL:
+
+`OPERSMS_SSL_VERIFICATION=true`
+
 ## Использование
 
-Можно использовать алиас:
+### Через Laravel Notifications
 
-    public function via(object $notifiable)
-    {
-        return ['opersms'];
-    }
+```php
+public function via(object $notifiable)
+{
+    return ['opersms'];
+}
+```
 
-Или вызывать класс драйвера напрямую:
+или
 
-    public function via(object $notifiable)
-    {
-        return [\Alexvexone\LaravelOperSms\Channels\OperSmsChannel::class];
-    }
+```php
+public function via(object $notifiable)
+{
+    return [\Alexvexone\LaravelOperSms\Channels\OperSmsChannel::class];
+}
+```
 
-## Публикация конфигурации
+### Через сервис напрямую
 
-Выполните в консоли:
+Отправка ОДНОГО сообщения ОДНОМУ телефонному номеру:
 
-`php artisan vendor:publish --provider="Alexvexone\LaravelOperSms\Providers\OperSmsServiceProvider"`
+```php
+\Alexvexone\LaravelOperSms\OperSmsService::send('YOUR_PHONE', 'YOUR_TEXT');
+```
+
+Массовая отправка РАЗНЫХ сообщений РАЗНЫМ телефонным номерам:
+
+```php
+\Alexvexone\LaravelOperSms\OperSmsService::send(['YOUR_PHONE1', 'YOUR_PHONE2', ...], ['YOUR_TEXT1', 'YOUR_TEXT2', ...]);
+```
+
+Массовая отправка РАЗНЫХ сообщений ОДНОМУ телефонному номеру:
+
+```php
+\Alexvexone\LaravelOperSms\OperSmsService::send('YOUR_PHONE', ['YOUR_TEXT1', 'YOUR_TEXT2', ...]);
+```
+
+## Публикация конфигурации (опционально)
+
+```bash
+php artisan vendor:publish --provider="Alexvexone\LaravelOperSms\Providers\OperSmsServiceProvider"
+```
