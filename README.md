@@ -37,6 +37,7 @@ public function via(object $notifiable)
 ```php
 public function via(object $notifiable)
 {
+
     return [\Alexvexone\LaravelOperSms\Channels\OperSmsChannel::class];
 }
 ```
@@ -52,13 +53,13 @@ public function via(object $notifiable)
 Массовая отправка РАЗНЫХ сообщений РАЗНЫМ телефонным номерам:
 
 ```php
-\Alexvexone\LaravelOperSms\OperSmsService::send(['YOUR_PHONE1', 'YOUR_PHONE2', ...], ['YOUR_TEXT1', 'YOUR_TEXT2', ...]);
+\Alexvexone\LaravelOperSms\OperSmsService::send(['YOUR_PHONE1', ...], ['YOUR_TEXT1', ...]);
 ```
 
 Массовая отправка РАЗНЫХ сообщений ОДНОМУ телефонному номеру:
 
 ```php
-\Alexvexone\LaravelOperSms\OperSmsService::send('YOUR_PHONE', ['YOUR_TEXT1', 'YOUR_TEXT2', ...]);
+\Alexvexone\LaravelOperSms\OperSmsService::send('YOUR_PHONE', ['YOUR_TEXT1', ...]);
 ```
 
 Массовая отправка через собственный массив:
@@ -67,7 +68,7 @@ public function via(object $notifiable)
 \Alexvexone\LaravelOperSms\OperSmsService::send([['phone' => 'YOUR_PHONE1', 'text' => 'YOUR_TEXT1'], ...]);
 ```
 
-## Публикация конфигурации (опционально)
+## Публикация (необязательно)
 
 ```bash
 php artisan vendor:publish --provider="Alexvexone\LaravelOperSms\Providers\OperSmsServiceProvider"
