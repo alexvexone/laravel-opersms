@@ -43,9 +43,12 @@ class OperSmsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'opersms');
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../../config/opersms.php' => config_path('opersms.php'),
+                __DIR__ . '/../../lang' => $this->app->langPath('vendor/opersms'),
             ]);
         }
     }

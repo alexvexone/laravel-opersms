@@ -23,7 +23,7 @@ class OperSmsService
     public static function send(array|string $phone, array|string $text = null): void
     {
         if (is_null(config('opersms.login')) || is_null(config('opersms.password'))) {
-            throw new Exception('Не указаны учетные данные от OperSMS.');
+            throw new Exception(__('opersms::messages.no_credentials_error'));
         }
 
         if (
@@ -31,7 +31,7 @@ class OperSmsService
             is_array($text) &&
             count($phone) !== count($text)
         ) {
-            throw new Exception('Количество номеров должно совпадать с количеством сообщений.');
+            throw new Exception(__('opersms::messages.quantify_of_phones_and_messages_error'));
         }
 
         if (is_array($phone) && is_null($text)) {
@@ -39,15 +39,15 @@ class OperSmsService
 
             foreach ($phone as $subArray) {
                 if (!is_array($subArray)) {
-                    throw new Exception('Элемент должен быть массивом.');
+                    throw new Exception(__('opersms::messages.must_be_array_error'));
                 }
 
                 if (!isset($subArray['phone'])) {
-                    throw new Exception('Отсутствует телефонный номер.');
+                    throw new Exception(__('opersms::messages.missing_phone_error'));
                 }
 
                 if (!isset($subArray['text'])) {
-                    throw new Exception('Отсутствует сообщение.');
+                    throw new Exception(__('opersms::messages.missing_message_error'));
                 }
 
                 $array[] = [
@@ -136,7 +136,7 @@ class OperSmsService
         $phone = preg_replace('/\D/', '', trim($raw));
 
         if (!preg_match('/^998[0-9]{9}+$/', $phone)) {
-            throw new Exception('Номер телефона или один из номеров указан в неверном формате.');
+            throw new Exception(__('opersms::messages.phone_format_validation_error'));
         }
 
         return $phone;
@@ -153,7 +153,7 @@ class OperSmsService
     private static function prepareText(string $text): string
     {
         if (strlen($text) === 0) {
-            throw new Exception('Сообщение или одно из сообщений не может быть пустым.');
+            throw new Exception(__('opersms::messages.message_length_validation_error'));
         }
 
         return $text;
