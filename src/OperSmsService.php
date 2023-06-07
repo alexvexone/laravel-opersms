@@ -18,9 +18,10 @@ class OperSmsService
      * @param  array|string  $phone
      * @param  array|string|null  $text
      *
+     * @return array
      * @throws Exception
      */
-    public static function send(array|string $phone, array|string $text = null): void
+    public static function send(array|string $phone, array|string $text = null): array
     {
         if (is_null(config('opersms.login')) || is_null(config('opersms.password'))) {
             throw new Exception(__('opersms::messages.no_credentials_error'));
@@ -54,6 +55,7 @@ class OperSmsService
         }
 
         $chunked = array_chunk($array, 50, true);
+        $result = [];
 
         foreach ($chunked as $chunk) {
             $ch = curl_init(config('opersms.url'));
@@ -72,9 +74,11 @@ class OperSmsService
                 'login=' . config('opersms.login') . '&password=' . config('opersms.password') . '&data=' . json_encode($chunk)
             );
 
-            curl_exec($ch);
+            $result[] = curl_exec($ch);
             curl_close($ch);
         }
+
+        return $result;
     }
 
     /**
