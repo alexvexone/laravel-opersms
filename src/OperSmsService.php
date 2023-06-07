@@ -34,6 +34,7 @@ class OperSmsService
             throw new Exception(__('opersms::messages.quantify_of_phones_and_messages_error'));
         }
 
+        // Подготовка массива для отправки в зависимости от переданных параметров.
         if (is_array($phone) && is_null($text)) {
             $array = self::prepareCustomArray($phone);
         } else {
