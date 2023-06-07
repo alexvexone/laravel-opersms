@@ -35,66 +35,19 @@ class OperSmsService
         }
 
         if (is_array($phone) && is_null($text)) {
-            $array = [];
-
-            foreach ($phone as $subArray) {
-                if (!is_array($subArray)) {
-                    throw new Exception(__('opersms::messages.must_be_array_error'));
-                }
-
-                if (!isset($subArray['phone'])) {
-                    throw new Exception(__('opersms::messages.missing_phone_error'));
-                }
-
-                if (!isset($subArray['text'])) {
-                    throw new Exception(__('opersms::messages.missing_message_error'));
-                }
-
-                $array[] = [
-                    'phone' => self::preparePhone($subArray['phone']),
-                    'text' => self::prepareText($subArray['text']),
-                ];
-            }
+            $array = self::prepareCustomArray($phone);
         } else {
             if (is_array($phone)) {
-                $array = [];
-
                 if (is_array($text)) {
-                    foreach ($phone as $key => $value) {
-                        $array[] = [
-                            'phone' => self::preparePhone($value),
-                            'text' => self::prepareText($text[$key]),
-                        ];
-                    }
+                    $array = self::prepareManyToManyArray($phone, $text);
                 } else {
-                    $preparedText = self::prepareText($text);
-
-                    foreach ($phone as $value) {
-                        $array[] = [
-                            'phone' => self::preparePhone($value),
-                            'text' => $preparedText,
-                        ];
-                    }
+                    $array = self::prepareManyToOneArray($phone, $text);
                 }
             } else {
-                $preparedPhone = self::preparePhone($phone);
-
                 if (is_array($text)) {
-                    $array = [];
-
-                    foreach ($text as $value) {
-                        $array[] = [
-                            'phone' => $preparedPhone,
-                            'text' => self::prepareText($value),
-                        ];
-                    }
+                    $array = self::prepareOneToManyArray($phone, $text);
                 } else {
-                    $array = [
-                        [
-                            'phone' => $preparedPhone,
-                            'text' => self::prepareText($text),
-                        ],
-                    ];
+                    $array = self::prepareOneToOneArray($phone, $text);
                 }
             }
         }
@@ -121,6 +74,140 @@ class OperSmsService
             curl_exec($ch);
             curl_close($ch);
         }
+    }
+
+    /**
+     * Получить обработанный массив для отправки из пользовательского массива номеров и СМС.
+     *
+     * (Пользовательский массив с обязательными ключами phone и text)
+     *
+     * @param  array  $array
+     *
+     * @return array
+     * @throws Exception
+     */
+    private static function prepareCustomArray(array $array): array
+    {
+        $result = [];
+
+        foreach ($array as $subArray) {
+            if (!is_array($subArray)) {
+                throw new Exception(__('opersms::messages.must_be_array_error'));
+            }
+
+            if (!isset($subArray['phone'])) {
+                throw new Exception(__('opersms::messages.missing_phone_error'));
+            }
+
+            if (!isset($subArray['text'])) {
+                throw new Exception(__('opersms::messages.missing_message_error'));
+            }
+
+            $result[] = [
+                'phone' => self::preparePhone($subArray['phone']),
+                'text' => self::prepareText($subArray['text']),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получить обработанный массив для отправки из массива номеров и массива СМС.
+     *
+     * (Много номеров - много СМС)
+     *
+     * @param  array  $phones
+     * @param  array  $texts
+     *
+     * @return array
+     * @throws Exception
+     */
+    private static function prepareManyToManyArray(array $phones, array $texts): array
+    {
+        $result = [];
+
+        foreach ($phones as $key => $phone) {
+            $result[] = [
+                'phone' => self::preparePhone($phone),
+                'text' => self::prepareText($texts[$key]),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получить обработанный массив для отправки из массива номеров и СМС.
+     *
+     * (Много номеров - СМС)
+     *
+     * @param  array  $phones
+     * @param  string  $text
+     *
+     * @return array
+     * @throws Exception
+     */
+    private static function prepareManyToOneArray(array $phones, string $text): array
+    {
+        $result = [];
+        $preparedText = self::prepareText($text);
+
+        foreach ($phones as $phone) {
+            $result[] = [
+                'phone' => self::preparePhone($phone),
+                'text' => $preparedText,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получить обработанный массив для отправки из номера и массива СМС.
+     *
+     * (Номер - много СМС)
+     *
+     * @param  string  $phone
+     * @param  array  $texts
+     *
+     * @return array
+     * @throws Exception
+     */
+    private static function prepareOneToManyArray(string $phone, array $texts): array
+    {
+        $result = [];
+        $preparedPhone = self::preparePhone($phone);
+
+        foreach ($texts as $text) {
+            $result[] = [
+                'phone' => $preparedPhone,
+                'text' => self::prepareText($text),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получить обработанный массив для отправки из номера и СМС.
+     *
+     * (Номер - СМС)
+     *
+     * @param  string  $phone
+     * @param  string  $text
+     *
+     * @return array[]
+     * @throws Exception
+     */
+    private static function prepareOneToOneArray(string $phone, string $text): array
+    {
+        return [
+            [
+                'phone' => self::preparePhone($phone),
+                'text' => self::prepareText($text),
+            ],
+        ];
     }
 
     /**
