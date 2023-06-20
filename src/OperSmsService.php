@@ -74,9 +74,44 @@ class OperSmsService
                 'login=' . config('opersms.login') . '&password=' . config('opersms.password') . '&data=' . json_encode($chunk)
             );
 
-            $result[] = curl_exec($ch);
+            $result[] = json_decode(curl_exec($ch));
             curl_close($ch);
         }
+
+        return $result;
+    }
+
+    /**
+     * Получить статус СМС по указанному ID.
+     *
+     * @param  int  $id
+     *
+     * @return mixed
+     */
+    public static function status(int $id): mixed
+    {
+        $ch = curl_init(config('opersms.url') . '/status');
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        if (config('opersms.ssl_verification')) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        }
+
+        curl_setopt(
+            $ch,
+            CURLOPT_POSTFIELDS,
+            'login=' . config('opersms.login') . '&password=' . config('opersms.password') . '&data=' . json_encode([
+                [
+                    'request_id' => $id,
+                ]
+            ])
+        );
+
+        $result = json_decode(curl_exec($ch));
+        curl_close($ch);
 
         return $result;
     }
