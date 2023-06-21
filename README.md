@@ -68,6 +68,12 @@ public function via(object $notifiable)
 \Alexvexone\LaravelOperSms\OperSmsService::send([['phone' => 'YOUR_PHONE1', 'text' => 'YOUR_TEXT1'], ...]);
 ```
 
+Проверка статуса отправленного СМС по ID:
+
+```php
+\Alexvexone\LaravelOperSms\OperSmsService::status(YOUR_ID);
+```
+
 ## Публикация (необязательно)
 
 ```bash
